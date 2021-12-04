@@ -1,17 +1,19 @@
 package com.techelevator.tenmo.model;
 
+import java.math.BigDecimal;
+
 public class Account {
 
     private Long accountId;
-    private Long id;
-    private Double balance;
+    private Long userId;
+    private double balance;
 
     public Account() {
     }
 
-    public Account(Long accountId, Long id, Double balance) {
+    public Account(Long accountId, Long userId, double balance) {
         this.accountId = accountId;
-        this.id = id;
+        this.userId = userId;
         this.balance = balance;
     }
 
@@ -23,19 +25,19 @@ public class Account {
         this.accountId = accountId;
     }
 
-    public Long getId() {
-        return id;
+    public Long getUserId() {
+        return userId;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public void setUserId(Long userId) {
+        this.userId = userId;
     }
 
-    public Double getBalance() {
+    public double getBalance() {
         return balance;
     }
 
-    public void setBalance(Double balance) {
+    public void setBalance(double balance) {
         this.balance = balance;
     }
 }

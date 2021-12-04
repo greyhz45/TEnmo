@@ -10,6 +10,8 @@ import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.client.RestTemplate;
 
+import java.math.BigDecimal;
+
 public class AccountService {
 
     private String baseUrl;
@@ -24,23 +26,21 @@ public class AccountService {
         this.baseUrl = baseUrl;
     }
 
-    public Double getBalance(Long id) throws AccountServiceException {
+    public Account getAccount(Long id) throws AccountServiceException {
         Account account = null;
 
         try {
             ResponseEntity<Account> response = restTemplate.exchange(baseUrl + "accounts/" + id, HttpMethod.GET, makeAuthEntity(), Account.class);
             account = response.getBody();
         } catch (RestClientResponseException e) {
-            //System.out.println("Error encountered.");
             throw new AccountServiceException(e.getMessage());
         } catch (ResourceAccessException e) {
-            //String message = createLoginExceptionMessage(ex);
             throw new AccountServiceException(e.getMessage());
         } catch (RestClientException e) {
-            //String message = createLoginExceptionMessage(ex);
             throw new AccountServiceException(e.getMessage());
         }
-        return account.getBalance();
+
+        return account;
     }
 
     private HttpEntity<Void> makeAuthEntity() {
