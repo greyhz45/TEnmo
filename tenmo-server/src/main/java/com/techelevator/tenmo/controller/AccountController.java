@@ -3,10 +3,7 @@ package com.techelevator.tenmo.controller;
 import com.techelevator.tenmo.dao.AccountDao;
 import com.techelevator.tenmo.model.Account;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/accounts")
@@ -19,9 +16,27 @@ public class AccountController {
         this.accountDao = accountDao;
     }
 
-    @RequestMapping(path = "/{id}", method = RequestMethod.GET)
+    @GetMapping("/{id}")
     public Account getBalance(@PathVariable Long id) {
-        Account account = accountDao.getAccount(id);
-        return account;
+
+        return accountDao.getAccountByUserId(id);
+    }
+
+    @PostMapping("")
+    public Account createAccount(@RequestBody Account account) {
+
+        return accountDao.createAccount(account);
+    }
+
+    @PutMapping("")
+    public void updateAccount(@RequestBody Account account) {
+
+        accountDao.updateAccount(account);
+    }
+
+    @DeleteMapping("/{id}")
+    public void deleteAccount(@PathVariable Long userId) {
+
+        accountDao.deleteAccount(userId);
     }
 }

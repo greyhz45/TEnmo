@@ -15,7 +15,7 @@ public class JdbcAccountDao implements AccountDao {
     }
 
     @Override
-    public Account getAccountBalance(Long accountId) {
+    public Account getAccount(Long accountId) {
 
         Account account = null;
 
@@ -28,10 +28,67 @@ public class JdbcAccountDao implements AccountDao {
         return account;
     }
 
+    @Override
+    public Account getAccountByUserId(Long userId) {
+
+        return getAccount(getAccountId(userId));
+    }
+
+    @Override
+    public Account createAccount(Account account) {
+
+        Account newAccount = new Account();
+        newAccount.setUserId(account.getUserId());
+        newAccount.setBalance(account.getBalance());
+        String insertSql = "INSERT INTO accounts " +
+                "(user_id, balance) " +
+                "VALUES (?, ?) " +
+                "RETURNING account_id;";
+        Long accountId = jdbcTemplate.queryForObject(insertSql, Long.class, newAccount.getUserId(), newAccount.getBalance());
+
+        if (accountId != 0) {
+            newAccount.setAccountId(accountId);
+        }
+
+        return newAccount;
+    }
+
+    @Override
+    public void updateAccount(Account account) {
+
+        Long accountId = getAccountId(account.getUserId());
+
+        if (accountId != 0) {
+            String updateSql = "UPDATE accounts " +
+                    "SET user_id = ?, " +
+                    "balance = ? " +
+                    "WHERE account_id = ?;";
+            jdbcTemplate.update(updateSql, account.getUserId(), account.getBalance(), accountId);
+        }
+    }
+
+    @Override
+    public void deleteAccount(Long userId) {
+
+        Long accountId = getAccountId(userId);
+
+        if (accountId != 0) {
+            String deleteSql = "DELETE FROM accounts " +
+                    "WHERE account_id = ?;";
+            jdbcTemplate.update(deleteSql, accountId);
+        }
+    }
+
+    private Long getAccountId(Long userId) {
+
+        String sql = "SELECT account_id FROM accounts WHERE user_id = ?;";
+        return jdbcTemplate.queryForObject(sql, Long.class, userId);
+    }
+
     private Account mapRowToAccount(SqlRowSet rs) {
         Account account = new Account();
         account.setAccountId(rs.getLong("account_id"));
-        account.setId(rs.getLong("user_id"));
+        account.setUserId(rs.getLong("user_id"));
         account.setBalance(rs.getDouble("balance"));
         return account;
     }

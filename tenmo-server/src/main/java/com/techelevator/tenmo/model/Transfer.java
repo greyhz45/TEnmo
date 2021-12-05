@@ -4,18 +4,18 @@ import java.util.Date;
 
 public class Transfer {
 
-    private Long id;
+    private Long transferId;
     private Long transferTypeId;
     private Long transferStatusId;
-    private int accountFrom;
-    private int accountTo;
+    private Long accountFrom;
+    private Long accountTo;
     private double amount;
 
     public Transfer() {
     }
 
-    public Transfer(Long id, Long transferTypeId, Long transferStatusId, int accountFrom, int accountTo, double amount) {
-        this.id = id;
+    public Transfer(Long transferId, Long transferTypeId, Long transferStatusId, Long accountFrom, Long accountTo, double amount) {
+        this.transferId = transferId;
         this.transferTypeId = transferTypeId;
         this.transferStatusId = transferStatusId;
         this.accountFrom = accountFrom;
@@ -23,12 +23,12 @@ public class Transfer {
         this.amount = amount;
     }
 
-    public Long getId() {
-        return id;
+    public Long getTransferId() {
+        return transferId;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public void setTransferId(Long transferId) {
+        this.transferId = transferId;
     }
 
     public Long getTransferTypeId() {
@@ -47,19 +47,19 @@ public class Transfer {
         this.transferStatusId = transferStatusId;
     }
 
-    public int getAccountFrom() {
+    public Long getAccountFrom() {
         return accountFrom;
     }
 
-    public void setAccountFrom(int accountFrom) {
+    public void setAccountFrom(Long accountFrom) {
         this.accountFrom = accountFrom;
     }
 
-    public int getAccountTo() {
+    public Long getAccountTo() {
         return accountTo;
     }
 
-    public void setAccountTo(int accountTo) {
+    public void setAccountTo(Long accountTo) {
         this.accountTo = accountTo;
     }
 
