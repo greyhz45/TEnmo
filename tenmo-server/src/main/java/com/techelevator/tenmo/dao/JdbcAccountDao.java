@@ -31,7 +31,7 @@ public class JdbcAccountDao implements AccountDao {
     @Override
     public Account getAccountByUserId(Long userId) {
 
-        return getAccount(getAccountId(userId));
+        return getAccount(getAccountIdByUserId(userId));
     }
 
     @Override
@@ -56,7 +56,7 @@ public class JdbcAccountDao implements AccountDao {
     @Override
     public void updateAccount(Account account) {
 
-        Long accountId = getAccountId(account.getUserId());
+        Long accountId = getAccountIdByUserId(account.getUserId());
 
         if (accountId != 0) {
             String updateSql = "UPDATE accounts " +
@@ -70,7 +70,7 @@ public class JdbcAccountDao implements AccountDao {
     @Override
     public void deleteAccount(Long userId) {
 
-        Long accountId = getAccountId(userId);
+        Long accountId = getAccountIdByUserId(userId);
 
         if (accountId != 0) {
             String deleteSql = "DELETE FROM accounts " +
@@ -79,7 +79,7 @@ public class JdbcAccountDao implements AccountDao {
         }
     }
 
-    private Long getAccountId(Long userId) {
+    private Long getAccountIdByUserId(Long userId) {
 
         String sql = "SELECT account_id FROM accounts WHERE user_id = ?;";
         return jdbcTemplate.queryForObject(sql, Long.class, userId);
