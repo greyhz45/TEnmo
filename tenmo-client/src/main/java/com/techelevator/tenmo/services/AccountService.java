@@ -26,11 +26,11 @@ public class AccountService {
         this.baseUrl = baseUrl;
     }
 
-    public Account getAccount(Long id) throws AccountServiceException {
+    public Account getAccountFromUserId(Long userId) throws AccountServiceException {
         Account account = null;
 
-        try {
-            ResponseEntity<Account> response = restTemplate.exchange(baseUrl + "accounts/" + id, HttpMethod.GET, makeAuthEntity(), Account.class);
+        try {// /u/ is unique endpoint to signal it is from a userId
+            ResponseEntity<Account> response = restTemplate.exchange(baseUrl + "accounts/u/" + userId, HttpMethod.GET, makeAuthEntity(), Account.class);
             account = response.getBody();
         } catch (RestClientResponseException e) {
             throw new AccountServiceException(e.getMessage());

@@ -75,7 +75,7 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 		// TODO Auto-generated method stub
         //Long accountId = Long.parseLong(console.getUserInput("Enter Account ID"));
         try {
-			System.out.println("Your current account balance is: $" + accountService.getAccount(Long.valueOf(currentUser.getUser().getId())).getBalance());
+			System.out.println("Your current account balance is: $" + accountService.getAccountFromUserId(Long.valueOf(currentUser.getUser().getId())).getBalance());
 		} catch (AccountServiceException e) {
 			System.out.println("Error accessing account: " + e.getMessage());
 		}

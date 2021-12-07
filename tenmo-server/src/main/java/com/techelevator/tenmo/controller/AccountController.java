@@ -16,7 +16,7 @@ public class AccountController {
         this.accountDao = accountDao;
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/u/{id}")// /u/ is unique endpoint to signal it is from a userId
     public Account getAccountByUserId(@PathVariable Long id) {
 
         return accountDao.getAccountByUserId(id);
