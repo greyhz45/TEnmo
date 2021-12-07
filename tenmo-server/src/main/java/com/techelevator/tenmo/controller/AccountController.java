@@ -17,7 +17,7 @@ public class AccountController {
     }
 
     @GetMapping("/{id}")
-    public Account getBalance(@PathVariable Long id) {
+    public Account getAccountByUserId(@PathVariable Long id) {
 
         return accountDao.getAccountByUserId(id);
     }
