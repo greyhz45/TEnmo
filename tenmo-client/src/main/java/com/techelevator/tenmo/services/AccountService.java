@@ -17,6 +17,7 @@ public class AccountService {
     private String baseUrl;
     private RestTemplate restTemplate = new RestTemplate();
     private String authToken = null;
+    private String accountsPath = "accounts/";
 
     public void setAuthToken(String authToken) {
         this.authToken = authToken;
@@ -26,11 +27,29 @@ public class AccountService {
         this.baseUrl = baseUrl;
     }
 
-    public Account getAccountFromUserId(Long userId) throws AccountServiceException {
+    public Account getAccount(Long id) throws AccountServiceException {
         Account account = null;
 
-        try {// /u/ is unique endpoint to signal it is from a userId
-            ResponseEntity<Account> response = restTemplate.exchange(baseUrl + "accounts/u/" + userId, HttpMethod.GET, makeAuthEntity(), Account.class);
+        try {
+            ResponseEntity<Account> response = restTemplate.exchange(baseUrl + accountsPath + id, HttpMethod.GET, makeAuthEntity(), Account.class);
+            account = response.getBody();
+        } catch (RestClientResponseException e) {
+            throw new AccountServiceException(e.getMessage());
+        } catch (ResourceAccessException e) {
+            throw new AccountServiceException(e.getMessage());
+        } catch (RestClientException e) {
+            throw new AccountServiceException(e.getMessage());
+        }
+
+        return account;
+    }
+
+    public Account getAccountByAccountId(Long accountId) throws AccountServiceException {
+
+        Account account = null;
+
+        try {
+            ResponseEntity<Account> response = restTemplate.exchange(baseUrl + "accounts" + "?account_id=" + accountId, HttpMethod.GET, makeAuthEntity(), Account.class);
             account = response.getBody();
         } catch (RestClientResponseException e) {
             throw new AccountServiceException(e.getMessage());

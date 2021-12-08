@@ -24,6 +24,34 @@ public class TransferController {
         return transferDao.getTransfer(transferId);
     }
 
+    @GetMapping("/{transferId}")
+    public Transfer listTransferByTransferId(@PathVariable Long transferId) {
 
+        return transferDao.getTransfer(transferId);
+    }
+
+    @GetMapping("/users/{userId}")
+    public List<Transfer> getTransfersByUserId(@PathVariable Long userId) {
+
+        return transferDao.listAllRelatedTransfers(userId);
+    }
+
+    @PostMapping("")
+    public Transfer createNewTransfer(@RequestBody Transfer transfer) {
+
+        return transferDao.createTransfer(transfer);
+    }
+
+    @PutMapping("/")
+    public void updateTransfer(@RequestBody Transfer transfer) {
+
+        transferDao.updateTransfer(transfer);
+    }
+
+    @DeleteMapping("/{transferId}")
+    public void deleteTransfer(@PathVariable Long transferId) {
+
+        transferDao.deleteTransfer(transferId);
+    }
 
 }

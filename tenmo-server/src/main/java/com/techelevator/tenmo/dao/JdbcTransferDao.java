@@ -5,12 +5,13 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Component
 public class JdbcTransferDao implements TransferDao {
 
-    private List<Transfer> transfers = null;
+    //private List<Transfer> transfers = new ArrayList<>();
 
     private JdbcTemplate jdbcTemplate;
 
@@ -35,10 +36,19 @@ public class JdbcTransferDao implements TransferDao {
     @Override
     public List<Transfer> listAllRelatedTransfers(Long userId) {
 
+        List<Transfer> transfers = new ArrayList<>();
+        SqlRowSet rowSet;
+
         Long accountId = getAccountId(userId);
         if (accountId != 0) {
-            listTransfersByAccountTo(accountId);
-            listTransfersByAccountFrom(accountId);
+            rowSet = listTransfersByAccountFrom(accountId);
+            while (rowSet.next()) {
+                transfers.add(mapRowToTransfer(rowSet));
+            }
+            rowSet = listTransfersByAccountTo(accountId);
+            while (rowSet.next()) {
+                transfers.add(mapRowToTransfer(rowSet));
+            }
         }
 
         return transfers;
@@ -69,31 +79,44 @@ public class JdbcTransferDao implements TransferDao {
     @Override
     public void updateTransfer(Transfer transfer) {
 
+        String updateSql = "UPDATE transfers " +
+                "SET transfer_type_id = ?, " +
+                "transfer_status_id = ?, " +
+                "account_from = ?, " +
+                "account_to = ?, " +
+                "amount = ? " +
+                "WHERE transfer_id = ?;";
+        jdbcTemplate.update(updateSql, transfer.getTransferTypeId(), transfer.getTransferStatusId(), transfer.getAccountFrom(), transfer.getAccountTo(), transfer.getAmount());
     }
 
     @Override
     public void deleteTransfer(Long transferId) {
 
+        String deleteSql = "DELETE FROM transfers " +
+                "WHERE transfer_id = ?;";
+        jdbcTemplate.update(deleteSql, transferId);
     }
 
-    private void listTransfersByAccountFrom(Long accountFrom) {
+    private SqlRowSet listTransfersByAccountFrom(Long accountFrom) {
 
         String sql = "SELECT * FROM transfers " +
                 "WHERE account_from = ?;";
         SqlRowSet rowSet = jdbcTemplate.queryForRowSet(sql, accountFrom);
-        while (rowSet.next()) {
+        /*while (rowSet.next()) {
             transfers.add(mapRowToTransfer(rowSet));
-        }
+        }*/
+        return rowSet;
     }
 
-    private void listTransfersByAccountTo(Long accountTo) {
+    private SqlRowSet listTransfersByAccountTo(Long accountTo) {
 
         String sql = "SELECT * FROM transfers " +
                 "WHERE account_to = ?;";
         SqlRowSet rowSet = jdbcTemplate.queryForRowSet(sql, accountTo);
-        while (rowSet.next()) {
+        /*while (rowSet.next()) {
             transfers.add(mapRowToTransfer(rowSet));
-        }
+        }*/
+        return rowSet;
     }
 
     private Long getAccountId(Long userId) {
