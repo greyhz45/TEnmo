@@ -95,6 +95,7 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 		Map<Long, Transfer> mapTransfer = new HashMap<>();
 
         try {
+			Long userAccountId = accountService.getAccount(Long.valueOf(currentUser.getUser().getId())).getAccountId();
             transfers = transferService.getTransfersByUserId(Long.valueOf(currentUser.getUser().getId()));
             Arrays.sort(transfers, new Comparator<Transfer>() {
 				@Override
@@ -109,8 +110,9 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 			for (Transfer transfer : transfers) {
 				String detail = null;
                 Account account = null;
-				//means a Request
-				if(transfer.getTransferTypeId() == 1) {
+				//fix this
+				//if(transfer.getTransferTypeId() == 1) {
+				if (transfer.getAccountFrom() != userAccountId) {
 					detail = fromPrefix;
 					account = getUserIdFromAccount(Long.valueOf(transfer.getAccountFrom()));
 				} else {
@@ -129,7 +131,9 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 
         } catch (TransferServiceException e) {
             System.out.println("Error accessing transfers: " + e.getMessage());
-        }
+        } catch (AccountServiceException e) {
+			System.out.println("Error accessing accounts: " + e.getMessage());
+		}
 
         //bons *** ask for transfer id and display
 		System.out.println("---------");

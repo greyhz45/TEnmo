@@ -22,6 +22,12 @@ public class AccountController {
         return accountDao.getAccountByUserId(id);
     }
 
+    @GetMapping("")
+    public Account getAccountByAccountId(@RequestParam(name = "account_id") Long accountId) {
+
+        return accountDao.getAccount(accountId);
+    }
+
     @PostMapping("")
     public Account createAccount(@RequestBody Account account) {
 

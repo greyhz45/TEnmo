@@ -1,15 +1,21 @@
 package com.techelevator.view;
 
 
+import com.techelevator.tenmo.model.Transfer;
+import com.techelevator.tenmo.model.TransferDetail;
+
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.util.Map;
 import java.util.Scanner;
 
 public class ConsoleService {
 
 	private PrintWriter out;
 	private Scanner in;
+
+	private static final String LINEBAR = "-------------------------------------------";
 
 	public ConsoleService(InputStream input, OutputStream output) {
 		this.out = new PrintWriter(output, true);
@@ -73,4 +79,55 @@ public class ConsoleService {
 		} while(result == null);
 		return result;
 	}
+
+	public Double getUserInputDouble(String prompt) {
+		Double result = null;
+		do {
+			out.print(prompt+": ");
+			out.flush();
+			String userInput = in.nextLine();
+			try {
+				result = Double.parseDouble(userInput);
+			} catch(NumberFormatException e) {
+				out.println(System.lineSeparator() + "*** " + userInput + " is not valid ***" + System.lineSeparator());
+			}
+		} while(result == null);
+		return result;
+	}
+
+	public void printTransferView(Transfer transfer, String detail) {
+
+		out.println(transfer.getTransferId() + "       " + detail + "        " + "$ " + transfer.getAmount());
+	}
+
+	public void printTransferDetails(TransferDetail transferDetail) {
+
+		displayHeader("Transfer Details", "");
+		out.println("Id: " + transferDetail.getTransferId());
+		out.println("From: " + transferDetail.getFromName());
+		out.println("To: " + transferDetail.getToName());
+		out.println("Type: " + transferDetail.getTransferType());
+		out.println("Status: " + transferDetail.getTransferStatus());
+		out.println("Amount: $" + transferDetail.getAmount());
+	}
+
+	public void printRegisteredUsers(Map<Long, String> mapUser) {
+
+		displayHeader("Users", "ID          Name");
+		for (Map.Entry<Long, String> user: mapUser.entrySet()) {
+			out.println(user.getKey() + "      " + user.getValue());
+		}
+	}
+
+	public void displayHeader(String header1, String header2) {
+		out.println(LINEBAR);
+		if (!header1.isEmpty()) {
+			out.println(header1);
+		}
+		if (!header2.isEmpty()) {
+			out.println(header2);
+		}
+		out.println(LINEBAR);
+	}
+
 }
