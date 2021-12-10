@@ -27,11 +27,11 @@ public class AccountService {
         this.baseUrl = baseUrl;
     }
 
-    public Account getAccount(Long id) throws AccountServiceException {
+    public Account getAccount(Long userId) throws AccountServiceException {
         Account account = null;
 
         try {
-            ResponseEntity<Account> response = restTemplate.exchange(baseUrl + accountsPath + id, HttpMethod.GET, makeAuthEntity(), Account.class);
+            ResponseEntity<Account> response = restTemplate.exchange(baseUrl + "accounts/u/" + userId, HttpMethod.GET, makeAuthEntity(), Account.class);
             account = response.getBody();
         } catch (RestClientResponseException e) {
             throw new AccountServiceException(e.getMessage());

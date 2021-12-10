@@ -135,11 +135,10 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 			System.out.println("Error accessing accounts: " + e.getMessage());
 		}
 
-        //bons *** ask for transfer id and display
-		System.out.println("---------");
         boolean isFound = false;
         TransferDetail transferDetail = new TransferDetail();
         do {
+            System.out.println("---------");
 			long transferIdChoice = Long.valueOf(console.getUserInputInteger("Please enter transfer ID to view details (0 to cancel)"));
 			if (mapTransfer.containsKey(transferIdChoice)) {
 				Account account = null;
@@ -166,10 +165,11 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 		// TODO Auto-generated method stub
 		console.printRegisteredUsers(mapUser);
 		boolean isValid = false;
+		long sendToUserId = 0;
 		double amount = 0.00;
 
 		do {
-			long sendToUserId = Long.valueOf(console.getUserInputInteger("Enter ID of user you are sending to (0 to cancel)"));
+			sendToUserId = Long.valueOf(console.getUserInputInteger("Enter ID of user you are sending to (0 to cancel)"));
 			if (mapUser.containsKey(sendToUserId)) {
 				isValid = true;
 			}
@@ -180,6 +180,10 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 			amount = console.getUserInputDouble("Enter amount");
 			isValid = true;
 		} while (!isValid);
+
+        //deduct money from own account
+        //add money to recipient account
+        //create record in transfer table with initial status of "approve"
 	}
 
 	private void requestBucks() {

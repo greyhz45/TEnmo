@@ -16,6 +16,7 @@ public class ConsoleService {
 	private Scanner in;
 
 	private static final String LINEBAR = "-------------------------------------------";
+	private static final String SHORTLINE = "---------";
 
 	public ConsoleService(InputStream input, OutputStream output) {
 		this.out = new PrintWriter(output, true);
@@ -102,6 +103,7 @@ public class ConsoleService {
 
 	public void printTransferDetails(TransferDetail transferDetail) {
 
+		out.println();
 		displayHeader("Transfer Details", "");
 		out.println("Id: " + transferDetail.getTransferId());
 		out.println("From: " + transferDetail.getFromName());
@@ -117,6 +119,8 @@ public class ConsoleService {
 		for (Map.Entry<Long, String> user: mapUser.entrySet()) {
 			out.println(user.getKey() + "      " + user.getValue());
 		}
+		out.println();
+		out.println(SHORTLINE);
 	}
 
 	public void displayHeader(String header1, String header2) {
