@@ -95,7 +95,8 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 		Map<Long, Transfer> mapTransfer = new HashMap<>();
 
         try {
-			Long userAccountId = accountService.getAccount(Long.valueOf(currentUser.getUser().getId())).getAccountId();
+			//Long userAccountId = accountService.getAccount(Long.valueOf(currentUser.getUser().getId())).getAccountId();
+            Long userAccountId = getAccountIdByUserIdFromAccounts(Long.valueOf(currentUser.getUser().getId()));
             transfers = transferService.getTransfersByUserId(Long.valueOf(currentUser.getUser().getId()));
             Arrays.sort(transfers, new Comparator<Transfer>() {
 				@Override
@@ -110,14 +111,12 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 			for (Transfer transfer : transfers) {
 				String detail = null;
                 Account account = null;
-				//fix this
-				//if(transfer.getTransferTypeId() == 1) {
 				if (transfer.getAccountFrom() != userAccountId) {
 					detail = fromPrefix;
-					account = getUserIdFromAccount(Long.valueOf(transfer.getAccountFrom()));
+					account = getAccountDetails(Long.valueOf(transfer.getAccountFrom()));
 				} else {
 					detail = toPrefix;
-					account = getUserIdFromAccount(Long.valueOf(transfer.getAccountTo()));
+					account = getAccountDetails(Long.valueOf(transfer.getAccountTo()));
 				}
 				//get username from existing users map
 				if (mapUser.containsKey(account.getUserId())) {
@@ -131,29 +130,28 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 
         } catch (TransferServiceException e) {
             System.out.println("Error accessing transfers: " + e.getMessage());
-        } catch (AccountServiceException e) {
-			System.out.println("Error accessing accounts: " + e.getMessage());
-		}
+        }
 
         boolean isFound = false;
         TransferDetail transferDetail = new TransferDetail();
-        do {
+		long transferIdChoice = 0;
+		do {
             System.out.println("---------");
-			long transferIdChoice = Long.valueOf(console.getUserInputInteger("Please enter transfer ID to view details (0 to cancel)"));
+			transferIdChoice = Long.valueOf(console.getUserInputInteger("Please enter transfer ID to view details (0 to cancel)"));
 			if (mapTransfer.containsKey(transferIdChoice)) {
 				Account account = null;
 				transferDetail.setTransferId(mapTransfer.get(transferIdChoice).getTransferId());
 				transferDetail.setTransferStatus(mapTransfer.get(transferIdChoice).getTransferStatusDesc());
 				transferDetail.setTransferType(mapTransfer.get(transferIdChoice).getTransferTypeDesc());
-				account = getUserIdFromAccount(Long.valueOf(mapTransfer.get(transferIdChoice).getAccountFrom()));
+				account = getAccountDetails(Long.valueOf(mapTransfer.get(transferIdChoice).getAccountFrom()));
 				transferDetail.setFromName(mapUser.get(account.getUserId()));
-				account = getUserIdFromAccount(Long.valueOf(mapTransfer.get(transferIdChoice).getAccountTo()));
+				account = getAccountDetails(Long.valueOf(mapTransfer.get(transferIdChoice).getAccountTo()));
 				transferDetail.setToName(mapUser.get(account.getUserId()));
 				transferDetail.setAmount(mapTransfer.get(transferIdChoice).getAmount());
 				console.printTransferDetails(transferDetail);
 				isFound = true;
 			}
-		} while (!isFound);
+		} while (!isFound || transferIdChoice == 0);
 	}
 
 	private void viewPendingRequests() {
@@ -167,22 +165,44 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 		boolean isValid = false;
 		long sendToUserId = 0;
 		double amount = 0.00;
+		Long accountId = null;
+		Account senderAccount = null;
+		Account receiverAccount = null;
+
+		//get sender's Account details
+		accountId = getAccountIdByUserIdFromAccounts(Long.valueOf(currentUser.getUser().getId()));
+		senderAccount = getAccountDetails(accountId);
 
 		do {
 			sendToUserId = Long.valueOf(console.getUserInputInteger("Enter ID of user you are sending to (0 to cancel)"));
-			if (mapUser.containsKey(sendToUserId)) {
-				isValid = true;
+			if (mapUser.containsKey(sendToUserId) && sendToUserId !=0) {
+				amount = console.getUserInputDouble("Enter amount");
+				if (senderAccount.getBalance() >= amount) {
+					accountId = getAccountIdByUserIdFromAccounts(sendToUserId);
+					receiverAccount = getAccountDetails(accountId);
+					isValid = true;
+				} else {
+					System.out.println("*** Balance not enough for this transaction ***");
+				}
 			}
-		} while (!isValid);
-
-		isValid = false;
-		do {
-			amount = console.getUserInputDouble("Enter amount");
-			isValid = true;
-		} while (!isValid);
+		} while (!isValid || sendToUserId == 0);
 
         //deduct money from own account
-        //add money to recipient account
+		//add money to recipient account
+		if (isValid) {
+			try {
+				senderAccount.deductBalance(amount);
+				accountService.updateAccount(senderAccount);
+				receiverAccount.increaseBalance(amount);
+				accountService.updateAccount(receiverAccount);
+			} catch (AccountServiceException e) {
+				System.out.println("Error accessing account service: " + e.getMessage());
+			}
+		}
+
+		System.out.println("*** sender: " + senderAccount.getAccountId() + " balance is: " + senderAccount.getBalance());
+		System.out.println("*** receiver: " + receiverAccount.getAccountId() + " balance is: " + receiverAccount.getBalance());
+
         //create record in transfer table with initial status of "approve"
 	}
 
@@ -268,11 +288,13 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 
 		mapUser  = new HashMap<>();
     	for (User user: users) {
-			mapUser.put(Long.valueOf(user.getId()), user.getUsername());
+    		if (user.getId() != currentUser.getUser().getId()) {
+				mapUser.put(Long.valueOf(user.getId()), user.getUsername());
+			}
 		}
 	}
 
-	private Account getUserIdFromAccount(Long accountId) {
+	private Account getAccountDetails(Long accountId) {
 
     	Account account = null;
 
@@ -284,4 +306,17 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 
     	return account;
 	}
+
+	private Long getAccountIdByUserIdFromAccounts(Long userId) {
+
+        Long userAccountId = null;
+
+        try {
+            userAccountId = accountService.getAccount(userId).getAccountId();
+        } catch (AccountServiceException e) {
+            System.out.println("Error retrieving Account Id from Accounts: " + e.getMessage());
+        }
+
+        return userAccountId;
+    }
 }

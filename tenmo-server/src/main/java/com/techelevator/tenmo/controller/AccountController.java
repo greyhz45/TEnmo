@@ -34,10 +34,10 @@ public class AccountController {
         return accountDao.createAccount(account);
     }
 
-    @PutMapping("")
-    public void updateAccount(@RequestBody Account account) {
+    @PutMapping("/{accountId}")
+    public void updateAccount(@RequestBody Account account, @PathVariable Long accountId) {
 
-        accountDao.updateAccount(account);
+        accountDao.updateAccount(account, accountId);
     }
 
     @DeleteMapping("/{id}")

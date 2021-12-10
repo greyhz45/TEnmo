@@ -40,4 +40,12 @@ public class Account {
     public void setBalance(double balance) {
         this.balance = balance;
     }
+
+    public void deductBalance(double amountToDeduct) {
+        this.setBalance(getBalance() - amountToDeduct);
+    }
+
+    public void increaseBalance(double amountToAdd) {
+        this.setBalance(getBalance() + amountToAdd);
+    }
 }

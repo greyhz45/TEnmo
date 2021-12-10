@@ -1,10 +1,8 @@
 package com.techelevator.tenmo.services;
 
 import com.techelevator.tenmo.model.Account;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestClientResponseException;
@@ -60,6 +58,27 @@ public class AccountService {
         }
 
         return account;
+    }
+
+    public boolean updateAccount(@RequestBody Account account) throws AccountServiceException {
+
+        boolean isSuccess = false;
+        HttpEntity<Account> entity = makeAccountEntity(account);
+        try {
+            restTemplate.put(baseUrl + accountsPath + account.getAccountId(), entity);
+            isSuccess = true;
+        } catch (RestClientResponseException | ResourceAccessException e) {
+            throw new AccountServiceException(e.getMessage());
+        }
+
+        return isSuccess;
+    }
+
+    private HttpEntity<Account> makeAccountEntity(Account account) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.setBearerAuth(authToken);
+        return new HttpEntity<>(account, headers);
     }
 
     private HttpEntity<Void> makeAuthEntity() {

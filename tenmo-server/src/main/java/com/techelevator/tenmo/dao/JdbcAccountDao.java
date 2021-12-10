@@ -54,17 +54,13 @@ public class JdbcAccountDao implements AccountDao {
     }
 
     @Override
-    public void updateAccount(Account account) {
+    public void updateAccount(Account account, Long accountId) {
 
-        Long accountId = getAccountIdByUserId(account.getUserId());
-
-        if (accountId != 0) {
-            String updateSql = "UPDATE accounts " +
-                    "SET user_id = ?, " +
-                    "balance = ? " +
-                    "WHERE account_id = ?;";
-            jdbcTemplate.update(updateSql, account.getUserId(), account.getBalance(), accountId);
-        }
+        String updateSql = "UPDATE accounts " +
+                "SET user_id = ?, " +
+                "balance = ? " +
+                "WHERE account_id = ?;";
+        jdbcTemplate.update(updateSql, account.getUserId(), account.getBalance(), accountId);
     }
 
     @Override

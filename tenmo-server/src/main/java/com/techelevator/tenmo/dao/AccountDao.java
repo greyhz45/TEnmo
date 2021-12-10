@@ -10,7 +10,7 @@ public interface AccountDao {
 
     Account createAccount(Account account);
 
-    void updateAccount(Account account);
+    void updateAccount(Account account, Long accountId);
 
     void deleteAccount(Long userId);
 }
