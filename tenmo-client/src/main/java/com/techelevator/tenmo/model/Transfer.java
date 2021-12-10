@@ -8,17 +8,21 @@ public class Transfer {
     private int accountFrom;
     private int accountTo;
     private double amount;
+    private String transferTypeDesc;
+    private String transferStatusDesc;
 
     public Transfer() {
     }
 
-    public Transfer(Long transferId, Long transferTypeId, Long transferStatusId, int accountFrom, int accountTo, double amount) {
+    public Transfer(Long transferId, Long transferTypeId, Long transferStatusId, int accountFrom, int accountTo, double amount, String transferTypeDesc, String transferStatusDesc) {
         this.transferId = transferId;
         this.transferTypeId = transferTypeId;
         this.transferStatusId = transferStatusId;
         this.accountFrom = accountFrom;
         this.accountTo = accountTo;
         this.amount = amount;
+        this.transferTypeDesc = transferTypeDesc;
+        this.transferStatusDesc = transferStatusDesc;
     }
 
     public Long getTransferId() {
@@ -67,5 +71,21 @@ public class Transfer {
 
     public void setAmount(double amount) {
         this.amount = amount;
+    }
+
+    public String getTransferTypeDesc() {
+        return transferTypeDesc;
+    }
+
+    public void setTransferTypeDesc(String transferTypeDesc) {
+        this.transferTypeDesc = transferTypeDesc;
+    }
+
+    public String getTransferStatusDesc() {
+        return transferStatusDesc;
+    }
+
+    public void setTransferStatusDesc(String transferStatusDesc) {
+        this.transferStatusDesc = transferStatusDesc;
     }
 }

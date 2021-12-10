@@ -143,8 +143,8 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 			if (mapTransfer.containsKey(transferIdChoice)) {
 				Account account = null;
 				transferDetail.setTransferId(mapTransfer.get(transferIdChoice).getTransferId());
-				transferDetail.setTransferStatus("convert status id to string");
-				transferDetail.setTransferType("convert status type to string");
+				transferDetail.setTransferStatus(mapTransfer.get(transferIdChoice).getTransferStatusDesc());
+				transferDetail.setTransferType(mapTransfer.get(transferIdChoice).getTransferTypeDesc());
 				account = getUserIdFromAccount(Long.valueOf(mapTransfer.get(transferIdChoice).getAccountFrom()));
 				transferDetail.setFromName(mapUser.get(account.getUserId()));
 				account = getUserIdFromAccount(Long.valueOf(mapTransfer.get(transferIdChoice).getAccountTo()));

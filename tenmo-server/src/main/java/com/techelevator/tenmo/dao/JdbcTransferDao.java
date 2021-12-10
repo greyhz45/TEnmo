@@ -21,8 +21,12 @@ public class JdbcTransferDao implements TransferDao {
     public Transfer getTransfer(Long transferId) {
 
         Transfer transfer = null;
-        String sql = "SELECT * FROM transfers " +
-                "WHERE transfer_id = ?;";
+        String sql = "SELECT t.transfer_id, t.transfer_type_id, t.transfer_status_id, " +
+                "t.account_from, t.account_to, t.amount, tt.transfer_type_desc, " +
+                "ts.transfer_status_desc FROM transfers t " +
+                "JOIN transfer_types tt ON t.transfer_type_id = tt.transfer_type_id " +
+                "JOIN transfer_statuses ts ON t.transfer_status_id = ts.transfer_status_id " +
+                "WHERE t.transfer_id = ?;";
         SqlRowSet rowSet = jdbcTemplate.queryForRowSet(sql, transferId);
         if (rowSet.next()) {
             transfer = mapRowToTransfer(rowSet);
@@ -97,23 +101,27 @@ public class JdbcTransferDao implements TransferDao {
 
     private SqlRowSet listTransfersByAccountFrom(Long accountFrom) {
 
-        String sql = "SELECT * FROM transfers " +
+        String sql = "SELECT t.transfer_id, t.transfer_type_id, t.transfer_status_id, " +
+                "t.account_from, t.account_to, t.amount, tt.transfer_type_desc, " +
+                "ts.transfer_status_desc FROM transfers t " +
+                "JOIN transfer_types tt ON t.transfer_type_id = tt.transfer_type_id " +
+                "JOIN transfer_statuses ts ON t.transfer_status_id = ts.transfer_status_id " +
                 "WHERE account_from = ?;";
         SqlRowSet rowSet = jdbcTemplate.queryForRowSet(sql, accountFrom);
-        /*while (rowSet.next()) {
-            transfers.add(mapRowToTransfer(rowSet));
-        }*/
+
         return rowSet;
     }
 
     private SqlRowSet listTransfersByAccountTo(Long accountTo) {
 
-        String sql = "SELECT * FROM transfers " +
+        String sql = "SELECT t.transfer_id, t.transfer_type_id, t.transfer_status_id, " +
+                "t.account_from, t.account_to, t.amount, tt.transfer_type_desc, " +
+                "ts.transfer_status_desc FROM transfers t " +
+                "JOIN transfer_types tt ON t.transfer_type_id = tt.transfer_type_id " +
+                "JOIN transfer_statuses ts ON t.transfer_status_id = ts.transfer_status_id " +
                 "WHERE account_to = ?;";
         SqlRowSet rowSet = jdbcTemplate.queryForRowSet(sql, accountTo);
-        /*while (rowSet.next()) {
-            transfers.add(mapRowToTransfer(rowSet));
-        }*/
+
         return rowSet;
     }
 
@@ -133,6 +141,9 @@ public class JdbcTransferDao implements TransferDao {
         transfer.setAccountFrom(rs.getLong("account_from"));
         transfer.setAccountTo(rs.getLong("account_to"));
         transfer.setAmount(rs.getDouble("amount"));
+        transfer.setTransferTypeDesc(rs.getString("transfer_type_desc"));
+        transfer.setTransferStatusDesc(rs.getString("transfer_status_desc"));
+
         return transfer;
     }
 }

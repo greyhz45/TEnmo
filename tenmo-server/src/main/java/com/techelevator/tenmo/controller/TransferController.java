@@ -18,10 +18,10 @@ public class TransferController {
         this.transferDao = transferDao;
     }
 
-    @GetMapping("/{id}")
+    /*@GetMapping("/{id}")
     public Transfer getTransferById(@PathVariable Long transferId) {
         return transferDao.getTransfer(transferId);
-    }
+    }*/
 
     @GetMapping("/{transferId}")
     public Transfer listTransferByTransferId(@PathVariable Long transferId) {
