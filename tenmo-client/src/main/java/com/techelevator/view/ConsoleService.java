@@ -98,7 +98,10 @@ public class ConsoleService {
 
 	public void printTransferView(Transfer transfer, String detail) {
 
-		out.println(transfer.getTransferId() + "       " + detail + "        " + "$ " + transfer.getAmount());
+		//out.println(transfer.getTransferId() + "       " + detail + "        " + "$ " + transfer.getAmount());
+		//out.print(transfer.getTransferId() + "       " + detail);
+		//out.printf(transfer.getTransferId() + "       " + detail + "%20s %n", "$" + transfer.getAmount());
+		out.printf(transfer.getTransferId() + "     %-30s" + "$" + transfer.getAmount() + "\n", detail);
 	}
 
 	public void printTransferDetails(TransferDetail transferDetail) {

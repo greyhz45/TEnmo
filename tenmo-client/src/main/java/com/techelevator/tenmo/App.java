@@ -106,7 +106,7 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 					return o1.getTransferId().compareTo(o2.getTransferId());
 				}
 			});
-            console.displayHeader("Transfers", "ID          From/To                 Amount");
+            console.displayHeader("Transfers", "ID       From/To                       Amount");
 			for (Transfer transfer : transfers) {
 				String detail = null;
                 Account account = null;
