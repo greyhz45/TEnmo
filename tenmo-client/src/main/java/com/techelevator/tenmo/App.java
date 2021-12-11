@@ -1,5 +1,6 @@
 package com.techelevator.tenmo;
 
+import com.techelevator.tenmo.Util.BasicLogger;
 import com.techelevator.tenmo.model.*;
 import com.techelevator.tenmo.services.*;
 import com.techelevator.view.ConsoleService;
@@ -52,7 +53,7 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 		System.out.println("*********************");
 		System.out.println("* Welcome to TEnmo! *");
 		System.out.println("*********************");
-		
+		BasicLogger.log("START");
 		registerAndLogin();
 		mainMenu();
 	}
@@ -80,7 +81,6 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 	}
 
 	private void viewCurrentBalance() {
-		// TODO Auto-generated method stub
         //Long accountId = Long.parseLong(console.getUserInput("Enter Account ID"));
         try {
 			System.out.println("Your current account balance is: $" + accountService.getAccount(Long.valueOf(currentUser.getUser().getId())).getBalance());
@@ -90,7 +90,6 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 	}
 
 	private void viewTransferHistory() {
-		// TODO Auto-generated method stub
         Transfer[] transfers = null;
 		Map<Long, Transfer> mapTransfer = new HashMap<>();
 
@@ -210,6 +209,8 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 				newtransfer.setAccountTo(Integer.valueOf(String.valueOf(receiverAccount.getAccountId())));
 				newtransfer.setAmount(amount);
                 transferService.createTransfer(newtransfer);
+
+                BasicLogger.log(senderAccount.getUserId() + " sent " + amount + " to " + receiverAccount.getUserId());
 			} catch (AccountServiceException e) {
 				System.out.println("Error updating account service for sending: " + e.getMessage());
 			} catch (TransferServiceException e) {
@@ -224,6 +225,7 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 	}
 	
 	private void exitProgram() {
+    	BasicLogger.log("END" + "\n");
 		System.exit(0);
 	}
 
@@ -255,9 +257,13 @@ private static final String API_BASE_URL = "http://localhost:8080/";
             	authenticationService.register(credentials);
             	isRegistered = true;
             	System.out.println("Registration successful. You can now login.");
+
+            	BasicLogger.log("New user registered. Welcome " + credentials.getUsername());
             } catch(AuthenticationServiceException e) {
             	System.out.println("REGISTRATION ERROR: "+e.getMessage());
 				System.out.println("Please attempt to register again.");
+
+				BasicLogger.log("Registration failure");
             }
         }
 	}
@@ -272,9 +278,13 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 				currentUser = authenticationService.login(credentials);
 				accountService.setAuthToken(currentUser.getToken());
 				transferService.setAuthToken(currentUser.getToken());
+
+				BasicLogger.log("logged in as " + currentUser.getUser().getUsername());
 			} catch (AuthenticationServiceException e) {
 				System.out.println("LOGIN ERROR: "+e.getMessage());
 				System.out.println("Please attempt to login again.");
+
+				BasicLogger.log("Login failure");
 			}
 		}
 

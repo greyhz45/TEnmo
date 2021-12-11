@@ -12,13 +12,13 @@ import java.time.format.DateTimeFormatter;
 public class BasicLogger {
 
     public static void log(String message){
-        String logpath = "C:\\Users\\jaspe\\OneDrive\\Desktop\\merit_americva\\Capstone2\\capstone_2\\tenmo-client\\log.txt";
+        String logpath = "tenmo-client\\log.txt";
         File logFile = new File(logpath);
         try(PrintWriter log = new PrintWriter(new FileOutputStream(logFile,true))){
             try {
                 log.print(LocalDateTime.now().format(
                         DateTimeFormatter.ofPattern("MM/dd/yyyy HH:mm:ss a")));
-                log.print(": " + message);
+                log.println(": " + message);
 
 
             } catch (DateTimeException e) {
