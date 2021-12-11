@@ -132,11 +132,10 @@ private static final String API_BASE_URL = "http://localhost:8080/";
             System.out.println("Error accessing transfers: " + e.getMessage());
         }
 
-        boolean isFound = false;
         TransferDetail transferDetail = new TransferDetail();
 		long transferIdChoice = 0;
+		System.out.println("---------");
 		do {
-            System.out.println("---------");
 			transferIdChoice = Long.valueOf(console.getUserInputInteger("Please enter transfer ID to view details (0 to cancel)"));
 			if (mapTransfer.containsKey(transferIdChoice)) {
 				Account account = null;
@@ -149,9 +148,11 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 				transferDetail.setToName(mapUser.get(account.getUserId()));
 				transferDetail.setAmount(mapTransfer.get(transferIdChoice).getAmount());
 				console.printTransferDetails(transferDetail);
-				isFound = true;
+				break;
+			} else {
+				System.out.println("*** Transfer ID not found ***");
 			}
-		} while (!isFound || transferIdChoice == 0);
+		} while (transferIdChoice != 0);
 	}
 
 	private void viewPendingRequests() {
@@ -161,7 +162,7 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 
 	private void sendBucks() {
 		// TODO Auto-generated method stub
-		console.printRegisteredUsers(mapUser);
+
 		boolean isValid = false;
 		long sendToUserId = 0;
 		double amount = 0.00;
@@ -173,6 +174,10 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 		accountId = getAccountIdByUserIdFromAccounts(Long.valueOf(currentUser.getUser().getId()));
 		senderAccount = getAccountDetails(accountId);
 
+		//print all registered users
+		//make sure to skip printing current user
+		console.printRegisteredUsers(mapUser, Long.valueOf(currentUser.getUser().getId()));
+
 		do {
 			sendToUserId = Long.valueOf(console.getUserInputInteger("Enter ID of user you are sending to (0 to cancel)"));
 			if (mapUser.containsKey(sendToUserId) && sendToUserId !=0) {
@@ -181,29 +186,36 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 					accountId = getAccountIdByUserIdFromAccounts(sendToUserId);
 					receiverAccount = getAccountDetails(accountId);
 					isValid = true;
+					break;
 				} else {
 					System.out.println("*** Balance not enough for this transaction ***");
 				}
 			}
-		} while (!isValid || sendToUserId == 0);
+		} while (sendToUserId != 0);
 
         //deduct money from own account
 		//add money to recipient account
+        //create record in transfer table with initial status of "approve"
 		if (isValid) {
 			try {
 				senderAccount.deductBalance(amount);
 				accountService.updateAccount(senderAccount);
 				receiverAccount.increaseBalance(amount);
 				accountService.updateAccount(receiverAccount);
+				//populate fields for new transfer
+                Transfer newtransfer = new Transfer();
+				newtransfer.setTransferTypeDesc("Send");
+				newtransfer.setTransferStatusDesc("Approved");
+				newtransfer.setAccountFrom(Integer.valueOf(String.valueOf(senderAccount.getAccountId())));
+				newtransfer.setAccountTo(Integer.valueOf(String.valueOf(receiverAccount.getAccountId())));
+				newtransfer.setAmount(amount);
+                transferService.createTransfer(newtransfer);
 			} catch (AccountServiceException e) {
-				System.out.println("Error accessing account service: " + e.getMessage());
+				System.out.println("Error updating account service for sending: " + e.getMessage());
+			} catch (TransferServiceException e) {
+				System.out.println("Error updating transfer service for sending: " + e.getMessage());
 			}
 		}
-
-		System.out.println("*** sender: " + senderAccount.getAccountId() + " balance is: " + senderAccount.getBalance());
-		System.out.println("*** receiver: " + receiverAccount.getAccountId() + " balance is: " + receiverAccount.getBalance());
-
-        //create record in transfer table with initial status of "approve"
 	}
 
 	private void requestBucks() {
@@ -288,9 +300,7 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 
 		mapUser  = new HashMap<>();
     	for (User user: users) {
-    		if (user.getId() != currentUser.getUser().getId()) {
-				mapUser.put(Long.valueOf(user.getId()), user.getUsername());
-			}
+			mapUser.put(Long.valueOf(user.getId()), user.getUsername());
 		}
 	}
 

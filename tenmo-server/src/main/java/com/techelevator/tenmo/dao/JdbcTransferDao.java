@@ -59,17 +59,20 @@ public class JdbcTransferDao implements TransferDao {
     @Override
     public Transfer createTransfer(Transfer transfer) {
 
-        Transfer newTransfer = null;
-        newTransfer.setTransferTypeId(transfer.getTransferTypeId());
-        newTransfer.setTransferStatusId(transfer.getTransferStatusId());
+        Transfer newTransfer = new Transfer();
+        /*newTransfer.setTransferTypeId(transfer.getTransferTypeId());
+        newTransfer.setTransferStatusId(transfer.getTransferStatusId());*/
+        newTransfer.setTransferTypeDesc(transfer.getTransferTypeDesc());
+        newTransfer.setTransferStatusDesc(transfer.getTransferStatusDesc());
         newTransfer.setAccountFrom(transfer.getAccountFrom());
         newTransfer.setAccountTo(transfer.getAccountTo());
         newTransfer.setAmount(transfer.getAmount());
         String insertSql = "INSERT INTO transfers " +
                 "(transfer_type_id, transfer_status_id, account_from, account_to, amount) " +
-                "VALUES (?, ?, ?, ?, ?) " +
+                "VALUES ((SELECT transfer_type_id FROM transfer_types tt WHERE tt.transfer_type_desc = ?), " +
+                "(SELECT transfer_status_id FROM transfer_statuses ts WHERE ts.transfer_status_desc = ?), ?, ?, ?) " +
                 "RETURNING transfer_id;";
-        Long transferId = jdbcTemplate.queryForObject(insertSql, Long.class, newTransfer.getTransferTypeId(), newTransfer.getTransferStatusId(), newTransfer.getAccountFrom(), newTransfer.getAccountTo(), newTransfer.getAmount());
+        Long transferId = jdbcTemplate.queryForObject(insertSql, Long.class, newTransfer.getTransferTypeDesc(), newTransfer.getTransferStatusDesc(), newTransfer.getAccountFrom(), newTransfer.getAccountTo(), newTransfer.getAmount());
 
         if (transferId != 0) {
             newTransfer.setTransferId(transferId);

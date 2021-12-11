@@ -113,11 +113,13 @@ public class ConsoleService {
 		out.println("Amount: $" + transferDetail.getAmount());
 	}
 
-	public void printRegisteredUsers(Map<Long, String> mapUser) {
+	public void printRegisteredUsers(Map<Long, String> mapUser, Long currentUser) {
 
 		displayHeader("Users", "ID          Name");
 		for (Map.Entry<Long, String> user: mapUser.entrySet()) {
-			out.println(user.getKey() + "      " + user.getValue());
+			if (!user.getKey().equals(currentUser)) {
+				out.println(user.getKey() + "      " + user.getValue());
+			}
 		}
 		out.println();
 		out.println(SHORTLINE);

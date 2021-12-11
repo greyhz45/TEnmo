@@ -14,10 +14,13 @@ public class Transfer {
     public Transfer() {
     }
 
-    public Transfer(Long transferId, Long transferTypeId, Long transferStatusId, int accountFrom, int accountTo, double amount, String transferTypeDesc, String transferStatusDesc) {
+
+
+    //public Transfer(Long transferId, Long transferTypeId, Long transferStatusId, int accountFrom, int accountTo, double amount, String transferTypeDesc, String transferStatusDesc) {
+    public Transfer(Long transferId, int accountFrom, int accountTo, double amount, String transferTypeDesc, String transferStatusDesc) {
         this.transferId = transferId;
-        this.transferTypeId = transferTypeId;
-        this.transferStatusId = transferStatusId;
+        /*this.transferTypeId = transferTypeId;
+        this.transferStatusId = transferStatusId;*/
         this.accountFrom = accountFrom;
         this.accountTo = accountTo;
         this.amount = amount;
