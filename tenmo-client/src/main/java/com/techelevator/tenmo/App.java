@@ -53,7 +53,7 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 		System.out.println("*********************");
 		System.out.println("* Welcome to TEnmo! *");
 		System.out.println("*********************");
-		BasicLogger.log("START");
+		BasicLogger.log("\nSTART");
 		registerAndLogin();
 		mainMenu();
 	}
