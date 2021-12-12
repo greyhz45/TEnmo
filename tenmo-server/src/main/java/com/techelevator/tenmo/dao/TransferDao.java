@@ -1,7 +1,9 @@
 package com.techelevator.tenmo.dao;
 
 import com.techelevator.tenmo.model.Transfer;
+import com.techelevator.tenmo.model.TransferDTO;
 
+import java.security.Principal;
 import java.util.List;
 
 public interface TransferDao {
@@ -15,4 +17,6 @@ public interface TransferDao {
     void updateTransfer(Transfer transfer);
 
     void deleteTransfer(Long transferId);
+
+    Transfer createSendTran(TransferDTO transferDTO, Long userId);
 }

@@ -3,6 +3,7 @@ package com.techelevator.tenmo.controller;
 import com.techelevator.tenmo.dao.AccountDao;
 import com.techelevator.tenmo.dao.TransferDao;
 import com.techelevator.tenmo.model.Transfer;
+import com.techelevator.tenmo.model.TransferDTO;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,8 +15,10 @@ import java.util.List;
 public class TransferController {
 
     private TransferDao transferDao;
-    public TransferController(TransferDao transferDao) {
+    private AccountDao accountDao;
+    public TransferController(TransferDao transferDao, AccountDao accountDao) {
         this.transferDao = transferDao;
+        this.accountDao = accountDao;
     }
 
     /*@GetMapping("/{id}")
@@ -51,6 +54,16 @@ public class TransferController {
     public void deleteTransfer(@PathVariable Long transferId) {
 
         transferDao.deleteTransfer(transferId);
+    }
+
+    @RequestMapping(value = "/send/{userId}", method = {RequestMethod.PUT, RequestMethod.PUT, RequestMethod.POST})
+    public Transfer createSendTransfer(@PathVariable Long userId, @RequestBody TransferDTO transferDTO) {
+
+        //update account balances for sender and receiver
+        accountDao.updateSenderForSendTran(userId, transferDTO.getAmount());
+        accountDao.updateReceiverForSendTran(transferDTO.getReceiverId(), transferDTO.getAmount());
+        //create new transfer record
+        return transferDao.createSendTran(transferDTO, userId);
     }
 
 }

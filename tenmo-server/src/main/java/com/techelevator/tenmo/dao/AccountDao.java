@@ -13,4 +13,8 @@ public interface AccountDao {
     void updateAccount(Account account, Long accountId);
 
     void deleteAccount(Long userId);
+
+    void updateSenderForSendTran(Long senderId, double amount);
+
+    void updateReceiverForSendTran(Long receiverId, double amount);
 }

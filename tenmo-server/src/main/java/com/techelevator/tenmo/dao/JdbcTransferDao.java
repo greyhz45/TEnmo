@@ -1,10 +1,12 @@
 package com.techelevator.tenmo.dao;
 
 import com.techelevator.tenmo.model.Transfer;
+import com.techelevator.tenmo.model.TransferDTO;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
 
+import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -133,6 +135,19 @@ public class JdbcTransferDao implements TransferDao {
         String sql = "SELECT account_id FROM accounts " +
                 "WHERE user_id = ?;";
         return jdbcTemplate.queryForObject(sql, Long.class, userId);
+    }
+
+    @Override
+    public Transfer createSendTran(TransferDTO transferDTO, Long userId) {
+
+        Transfer transfer = new Transfer();
+        //populate new transfer record
+        transfer.setTransferTypeDesc("Send");
+        transfer.setTransferStatusDesc("Approved");
+        transfer.setAccountFrom(getAccountId(userId));
+        transfer.setAccountTo(getAccountId(transferDTO.getReceiverId()));
+        transfer.setAmount(transferDTO.getAmount());
+        return createTransfer(transfer);
     }
 
     private Transfer mapRowToTransfer(SqlRowSet rs) {

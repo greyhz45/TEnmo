@@ -75,6 +75,22 @@ public class JdbcAccountDao implements AccountDao {
         }
     }
 
+    @Override
+    public void updateSenderForSendTran(Long senderId, double amount) {
+
+        Account account = getAccountByUserId(senderId);
+        account.deductBalance(amount);
+        updateAccount(account, account.getAccountId());
+    }
+
+    @Override
+    public void updateReceiverForSendTran(Long receiverId, double amount) {
+
+        Account account = getAccountByUserId(receiverId);
+        account.increaseBalance(amount);
+        updateAccount(account, account.getAccountId());
+    }
+
     private Long getAccountIdByUserId(Long userId) {
 
         String sql = "SELECT account_id FROM accounts WHERE user_id = ?;";

@@ -1,5 +1,6 @@
 package com.techelevator.tenmo.services;
 
+import com.techelevator.tenmo.model.TransactionData;
 import com.techelevator.tenmo.model.Transfer;
 import org.springframework.http.*;
 import org.springframework.web.client.ResourceAccessException;
@@ -15,6 +16,7 @@ public class TransferService {
     private RestTemplate restTemplate = new RestTemplate();
     private String authToken = null;
     private String transferPath = "transfers/";
+    private String sendPath = "send/";
     private String userPath = "users/";
 
     public TransferService(String baseUrl) {
@@ -58,6 +60,22 @@ public class TransferService {
         }
 
         return newTransfer;
+    }
+
+    public boolean processSendTransaction(Long userId, TransactionData transactionData) throws TransferServiceException {
+
+        boolean isSuccess = false;
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            headers.setBearerAuth(authToken);
+            HttpEntity<TransactionData> entity = new HttpEntity<>(transactionData, headers);
+            restTemplate.put(baseUrl + transferPath + sendPath + userId, entity);
+            isSuccess = true;
+        } catch (RestClientResponseException | ResourceAccessException e) {
+            throw new TransferServiceException(e.getMessage());
+        }
+        return isSuccess;
     }
 
     private HttpEntity<Transfer> makeTransferEntity(Transfer transfer) {
