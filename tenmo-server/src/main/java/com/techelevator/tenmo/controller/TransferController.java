@@ -4,6 +4,7 @@ import com.techelevator.tenmo.dao.AccountDao;
 import com.techelevator.tenmo.dao.TransferDao;
 import com.techelevator.tenmo.model.Transfer;
 import com.techelevator.tenmo.model.TransferDTO;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -38,6 +39,12 @@ public class TransferController {
         return transferDao.listAllRelatedTransfers(userId);
     }
 
+    @GetMapping("/pending/{userId}")
+    public List<Transfer> getPendingTransfers(@PathVariable Long userId) {
+
+        return transferDao.listRelatedPendingTransfers(userId);
+    }
+
     @PostMapping("")
     public Transfer createNewTransfer(@RequestBody Transfer transfer) {
 
@@ -64,6 +71,32 @@ public class TransferController {
         accountDao.updateReceiverForSendTran(transferDTO.getReceiverId(), transferDTO.getAmount());
         //create new transfer record
         return transferDao.createSendTran(transferDTO, userId);
+    }
+
+    @PutMapping("/reject/{transferId}")
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    public String rejectRequestTransfer(@PathVariable Long transferId) {
+
+        int x = transferDao.rejectRequest(transferId);
+        if (x == 0) {
+            return "*** Unsuccessful transaction. Invalid transfer Id. ***";
+        } else {
+            return "*** Successful transaction. Transfer record updated. ***";
+        }
+    }
+
+    @RequestMapping(value = "/approve/{transferId}", method = {RequestMethod.PUT, RequestMethod.POST})
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    public String approveRequestTransfer(@PathVariable Long transferId) {
+
+        //update transfer record to Approved
+        Transfer transfer = transferDao.approveRequest(transferId);
+        if (transfer != null) {
+            accountDao.updateAccountForApprovedRequest(transfer);
+            return "*** Successful transaction. Transfer and Account records updated. ***";
+        }
+
+        return "*** Unsuccessful transaction. ***";
     }
 
 }

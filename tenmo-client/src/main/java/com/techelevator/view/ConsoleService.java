@@ -139,4 +139,9 @@ public class ConsoleService {
 		out.println(LINEBAR);
 	}
 
+	public void displayErrorMessage(String msg) {
+
+		out.println(System.lineSeparator() + msg + System.lineSeparator());
+	}
+
 }

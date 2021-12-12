@@ -1,6 +1,7 @@
 package com.techelevator.tenmo.dao;
 
 import com.techelevator.tenmo.model.Account;
+import com.techelevator.tenmo.model.Transfer;
 
 public interface AccountDao {
 
@@ -17,4 +18,6 @@ public interface AccountDao {
     void updateSenderForSendTran(Long senderId, double amount);
 
     void updateReceiverForSendTran(Long receiverId, double amount);
+
+    void updateAccountForApprovedRequest(Transfer transfer);
 }

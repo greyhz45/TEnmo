@@ -45,11 +45,40 @@ public class JdbcTransferDao implements TransferDao {
 
         Long accountId = getAccountId(userId);
         if (accountId != 0) {
-            rowSet = listTransfersByAccountFrom(accountId);
+            String sql = "SELECT t.transfer_id, t.transfer_type_id, t.transfer_status_id, " +
+                    "t.account_from, t.account_to, t.amount, tt.transfer_type_desc, " +
+                    "ts.transfer_status_desc FROM transfers t " +
+                    "JOIN transfer_types tt ON t.transfer_type_id = tt.transfer_type_id " +
+                    "JOIN transfer_statuses ts ON t.transfer_status_id = ts.transfer_status_id " +
+                    "WHERE account_from = ? or account_to = ? " +
+                    "ORDER BY t.transfer_id;";
+            rowSet = jdbcTemplate.queryForRowSet(sql, accountId, accountId);
             while (rowSet.next()) {
                 transfers.add(mapRowToTransfer(rowSet));
             }
-            rowSet = listTransfersByAccountTo(accountId);
+        }
+
+        return transfers;
+    }
+
+    @Override
+    public List<Transfer> listRelatedPendingTransfers(Long userId) {
+
+        List<Transfer> transfers = new ArrayList<>();
+        SqlRowSet rowSet;
+
+        Long accountId = getAccountId(userId);
+        if (accountId != 0) {
+            String sql = "SELECT t.transfer_id, t.transfer_type_id, t.transfer_status_id, " +
+                    "t.account_from, t.account_to, t.amount, tt.transfer_type_desc, " +
+                    "ts.transfer_status_desc FROM transfers t " +
+                    "JOIN transfer_types tt ON tt.transfer_type_desc = 'Request' " +
+                    "JOIN transfer_statuses ts ON ts.transfer_status_desc = 'Pending' " +
+                    "WHERE tt.transfer_type_id = t.transfer_type_id " +
+                    "AND ts.transfer_status_id = t.transfer_status_id " +
+                    "AND t.account_to = ? " +
+                    "ORDER BY t.transfer_id;";
+            rowSet = jdbcTemplate.queryForRowSet(sql, accountId);
             while (rowSet.next()) {
                 transfers.add(mapRowToTransfer(rowSet));
             }
@@ -78,6 +107,10 @@ public class JdbcTransferDao implements TransferDao {
 
         if (transferId != 0) {
             newTransfer.setTransferId(transferId);
+            //get created Transfer to populate type and status
+            Transfer tempTransfer = getTransfer(transferId);
+            newTransfer.setTransferTypeId(tempTransfer.getTransferTypeId());
+            newTransfer.setTransferStatusId(tempTransfer.getTransferStatusId());
         }
 
         return newTransfer;
@@ -93,7 +126,7 @@ public class JdbcTransferDao implements TransferDao {
                 "account_to = ?, " +
                 "amount = ? " +
                 "WHERE transfer_id = ?;";
-        jdbcTemplate.update(updateSql, transfer.getTransferTypeId(), transfer.getTransferStatusId(), transfer.getAccountFrom(), transfer.getAccountTo(), transfer.getAmount());
+        jdbcTemplate.update(updateSql, transfer.getTransferTypeId(), transfer.getTransferStatusId(), transfer.getAccountFrom(), transfer.getAccountTo(), transfer.getAmount(), transfer.getTransferId());
     }
 
     @Override
@@ -102,32 +135,6 @@ public class JdbcTransferDao implements TransferDao {
         String deleteSql = "DELETE FROM transfers " +
                 "WHERE transfer_id = ?;";
         jdbcTemplate.update(deleteSql, transferId);
-    }
-
-    private SqlRowSet listTransfersByAccountFrom(Long accountFrom) {
-
-        String sql = "SELECT t.transfer_id, t.transfer_type_id, t.transfer_status_id, " +
-                "t.account_from, t.account_to, t.amount, tt.transfer_type_desc, " +
-                "ts.transfer_status_desc FROM transfers t " +
-                "JOIN transfer_types tt ON t.transfer_type_id = tt.transfer_type_id " +
-                "JOIN transfer_statuses ts ON t.transfer_status_id = ts.transfer_status_id " +
-                "WHERE account_from = ?;";
-        SqlRowSet rowSet = jdbcTemplate.queryForRowSet(sql, accountFrom);
-
-        return rowSet;
-    }
-
-    private SqlRowSet listTransfersByAccountTo(Long accountTo) {
-
-        String sql = "SELECT t.transfer_id, t.transfer_type_id, t.transfer_status_id, " +
-                "t.account_from, t.account_to, t.amount, tt.transfer_type_desc, " +
-                "ts.transfer_status_desc FROM transfers t " +
-                "JOIN transfer_types tt ON t.transfer_type_id = tt.transfer_type_id " +
-                "JOIN transfer_statuses ts ON t.transfer_status_id = ts.transfer_status_id " +
-                "WHERE account_to = ?;";
-        SqlRowSet rowSet = jdbcTemplate.queryForRowSet(sql, accountTo);
-
-        return rowSet;
     }
 
     private Long getAccountId(Long userId) {
@@ -148,6 +155,50 @@ public class JdbcTransferDao implements TransferDao {
         transfer.setAccountTo(getAccountId(transferDTO.getReceiverId()));
         transfer.setAmount(transferDTO.getAmount());
         return createTransfer(transfer);
+    }
+
+    @Override
+    public int rejectRequest(Long transferId) {
+
+        int x = 0;
+        Transfer transfer = getTransfer(transferId);
+        if (transfer != null) {
+            String updateSql = "UPDATE transfers " +
+                    "SET transfer_status_id = " +
+                    "(SELECT ts.transfer_status_id FROM transfer_statuses ts WHERE ts.transfer_status_desc = 'Rejected') " +
+                    "WHERE transfer_id = ? " +
+                    "AND transfer_type_id = " +
+                    "(SELECT tt.transfer_type_id FROM transfer_types tt WHERE tt.transfer_type_desc = 'Request') " +
+                    "AND transfer_status_id = " +
+                    "(SELECT ts.transfer_status_id FROM transfer_statuses ts WHERE ts.transfer_status_desc = 'Pending');";
+            x = jdbcTemplate.update(updateSql, transfer.getTransferId());
+        }
+
+        return x;
+    }
+
+    @Override
+    public Transfer approveRequest(Long transferId) {
+
+        int x = 0;
+        Transfer transfer = getTransfer(transferId);
+        if (transfer != null) {
+            String updateSql = "UPDATE transfers " +
+                    "SET transfer_status_id = " +
+                    "(SELECT ts.transfer_status_id FROM transfer_statuses ts WHERE ts.transfer_status_desc = 'Approved') " +
+                    "WHERE transfer_id = ? " +
+                    "AND transfer_type_id = " +
+                    "(SELECT tt.transfer_type_id FROM transfer_types tt WHERE tt.transfer_type_desc = 'Request') " +
+                    "AND transfer_status_id = " +
+                    "(SELECT ts.transfer_status_id FROM transfer_statuses ts WHERE ts.transfer_status_desc = 'Pending');";
+            x = jdbcTemplate.update(updateSql, transfer.getTransferId());
+        }
+
+        if (x == 1) {
+            return transfer;
+        } else {
+            return null;
+        }
     }
 
     private Transfer mapRowToTransfer(SqlRowSet rs) {

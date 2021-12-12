@@ -12,6 +12,8 @@ public interface TransferDao {
 
     List<Transfer> listAllRelatedTransfers(Long userId);
 
+    List<Transfer> listRelatedPendingTransfers(Long userId);
+
     Transfer createTransfer(Transfer transfer);
 
     void updateTransfer(Transfer transfer);
@@ -19,4 +21,8 @@ public interface TransferDao {
     void deleteTransfer(Long transferId);
 
     Transfer createSendTran(TransferDTO transferDTO, Long userId);
+
+    int rejectRequest(Long transferId);
+
+    Transfer approveRequest(Long transferId);
 }

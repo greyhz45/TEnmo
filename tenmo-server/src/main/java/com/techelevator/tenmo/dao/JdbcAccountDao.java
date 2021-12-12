@@ -1,6 +1,7 @@
 package com.techelevator.tenmo.dao;
 
 import com.techelevator.tenmo.model.Account;
+import com.techelevator.tenmo.model.Transfer;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
@@ -88,6 +89,19 @@ public class JdbcAccountDao implements AccountDao {
 
         Account account = getAccountByUserId(receiverId);
         account.increaseBalance(amount);
+        updateAccount(account, account.getAccountId());
+    }
+
+    @Override
+    public void updateAccountForApprovedRequest(Transfer transfer) {
+
+        //update From Account
+        Account account = getAccount(transfer.getAccountFrom());
+        account.increaseBalance(transfer.getAmount());
+        updateAccount(account, account.getAccountId());
+        //update To Account
+        account = getAccount(transfer.getAccountTo());
+        account.deductBalance(transfer.getAmount());
         updateAccount(account, account.getAccountId());
     }
 
