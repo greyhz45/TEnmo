@@ -2,12 +2,15 @@ package com.techelevator.tenmo.controller;
 
 import com.techelevator.tenmo.dao.AccountDao;
 import com.techelevator.tenmo.dao.TransferDao;
+import com.techelevator.tenmo.dao.UserDao;
+import com.techelevator.tenmo.model.Account;
 import com.techelevator.tenmo.model.Transfer;
 import com.techelevator.tenmo.model.TransferDTO;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.util.List;
 
 @RestController
@@ -17,9 +20,12 @@ public class TransferController {
 
     private TransferDao transferDao;
     private AccountDao accountDao;
-    public TransferController(TransferDao transferDao, AccountDao accountDao) {
+    private UserDao userDao;
+
+    public TransferController(TransferDao transferDao, AccountDao accountDao, UserDao userDao) {
         this.transferDao = transferDao;
         this.accountDao = accountDao;
+        this.userDao = userDao;
     }
 
     @GetMapping("/{transferId}")
@@ -59,36 +65,59 @@ public class TransferController {
     }
 
     @RequestMapping(value = "/send/{userId}", method = {RequestMethod.PUT, RequestMethod.PUT, RequestMethod.POST})
-    public Transfer createSendTransfer(@PathVariable Long userId, @RequestBody TransferDTO transferDTO) {
+    public Transfer createSendTransfer(@PathVariable Long userId, @RequestBody TransferDTO transferDTO, Principal principal) {
 
-        //update account balances for sender and receiver
-        accountDao.updateSenderForSendTran(userId, transferDTO.getAmount());
-        accountDao.updateReceiverForSendTran(transferDTO.getReceiverId(), transferDTO.getAmount());
-        //create new transfer record
-        return transferDao.createSendTran(transferDTO, userId);
+        int principalId = userDao.findIdByUsername(principal.getName());
+        Account account = accountDao.getAccountByUserId(Long.valueOf(principalId));
+
+        if (account.getUserId().equals(userId) && account.getBalance() >= transferDTO.getAmount()) {
+            //update account balances for sender and receiver
+            accountDao.updateSenderForSendTran(userId, transferDTO.getAmount());
+            accountDao.updateReceiverForSendTran(transferDTO.getReceiverId(), transferDTO.getAmount());
+            //create new transfer record
+            return transferDao.createSendTran(transferDTO, userId);
+        }
+
+        return null;
     }
 
     @PutMapping("/reject/{transferId}")
     @ResponseStatus(HttpStatus.ACCEPTED)
-    public String rejectRequestTransfer(@PathVariable Long transferId) {
+    public String rejectRequestTransfer(@PathVariable Long transferId, Principal principal) {
 
-        int x = transferDao.rejectRequest(transferId);
-        if (x == 0) {
-            return "*** Unsuccessful transaction. Invalid transfer Id. ***";
-        } else {
-            return "*** Successful transaction. Transfer record updated. ***";
+        int principalId = userDao.findIdByUsername(principal.getName());
+        Account principalAccount = accountDao.getAccountByUserId(Long.valueOf(principalId));
+
+        Long accountTo = transferDao.getTransfer(transferId).getAccountTo();
+        Account toAccount = accountDao.getAccount(accountTo);
+
+        if (principalAccount.getUserId().equals(toAccount.getUserId())) {
+            int x = transferDao.rejectRequest(transferId);
+            if (x > 0) {
+                return "*** Successful transaction. Transfer record updated. ***";
+            }
         }
+
+        return "*** Unsuccessful transaction. Invalid transfer Id. ***";
     }
 
     @RequestMapping(value = "/approve/{transferId}", method = {RequestMethod.PUT, RequestMethod.POST})
     @ResponseStatus(HttpStatus.ACCEPTED)
-    public String approveRequestTransfer(@PathVariable Long transferId) {
+    public String approveRequestTransfer(@PathVariable Long transferId, Principal principal) {
 
-        //update transfer record to Approved
-        Transfer transfer = transferDao.approveRequest(transferId);
-        if (transfer != null) {
-            accountDao.updateAccountForApprovedRequest(transfer);
-            return "*** Successful transaction. Transfer and Account records updated. ***";
+        int principalId = userDao.findIdByUsername(principal.getName());
+        Account principalAccount = accountDao.getAccountByUserId(Long.valueOf(principalId));
+
+        Long accountTo = transferDao.getTransfer(transferId).getAccountTo();
+        Account toAccount = accountDao.getAccount(accountTo);
+
+        if (principalAccount.getUserId().equals(toAccount.getUserId())) {
+            //update transfer record to Approved
+            Transfer transfer = transferDao.approveRequest(transferId);
+            if (transfer != null) {
+                accountDao.updateAccountForApprovedRequest(transfer);
+                return "*** Successful transaction. Transfer and Account records updated. ***";
+            }
         }
 
         return "*** Unsuccessful transaction. ***";
