@@ -91,8 +91,6 @@ public class JdbcTransferDao implements TransferDao {
     public Transfer createTransfer(Transfer transfer) {
 
         Transfer newTransfer = new Transfer();
-        /*newTransfer.setTransferTypeId(transfer.getTransferTypeId());
-        newTransfer.setTransferStatusId(transfer.getTransferStatusId());*/
         newTransfer.setTransferTypeDesc(transfer.getTransferTypeDesc());
         newTransfer.setTransferStatusDesc(transfer.getTransferStatusDesc());
         newTransfer.setAccountFrom(transfer.getAccountFrom());

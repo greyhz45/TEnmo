@@ -22,11 +22,6 @@ public class TransferController {
         this.accountDao = accountDao;
     }
 
-    /*@GetMapping("/{id}")
-    public Transfer getTransferById(@PathVariable Long transferId) {
-        return transferDao.getTransfer(transferId);
-    }*/
-
     @GetMapping("/{transferId}")
     public Transfer listTransferByTransferId(@PathVariable Long transferId) {
 
