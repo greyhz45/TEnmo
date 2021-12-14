@@ -88,7 +88,8 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 	private void viewCurrentBalance() {
 
         try {
-			System.out.println("Your current account balance is: $" + accountService.getAccount(Long.valueOf(currentUser.getUser().getId())).getBalance());
+            System.out.println("Your current account balance is: $" + accountService.getBalance());
+
 			BasicLogger.log(currentUser.getUser().getId() + " viewed current balance.");
 		} catch (AccountServiceException e) {
 			System.out.println("Error accessing account: " + formatErrorMessage(e.getMessage()));

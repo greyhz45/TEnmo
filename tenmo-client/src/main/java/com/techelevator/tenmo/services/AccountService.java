@@ -60,6 +60,20 @@ public class AccountService {
         return account;
     }
 
+    public double getBalance() throws AccountServiceException {
+
+        try {
+            ResponseEntity<Double> response = restTemplate.exchange(baseUrl + accountsPath + "balance/", HttpMethod.GET, makeAuthEntity(), double.class);
+            return response.getBody();
+        } catch (RestClientResponseException e) {
+            throw new AccountServiceException(e.getMessage());
+        } catch (ResourceAccessException e) {
+            throw new AccountServiceException(e.getMessage());
+        } catch (RestClientException e) {
+            throw new AccountServiceException(e.getMessage());
+        }
+    }
+
     public boolean updateAccount(@RequestBody Account account) throws AccountServiceException {
 
         boolean isSuccess = false;
