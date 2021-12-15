@@ -310,14 +310,10 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 			sendToUserId = Long.valueOf(console.getUserInputInteger("Enter ID of user you are requesting to (0 to cancel)"));
 			if (mapUser.containsKey(sendToUserId) && sendToUserId != 0) {
 				amount = console.getUserInputDouble("Enter amount");
-				if (senderAccount.getBalance() >= amount) {
-					accountId = getAccountIdByUserIdFromAccounts(sendToUserId);
-					receiverAccount = getAccountDetails(accountId);
-					isValid = true;
-					break;
-				} else {
-					console.displayErrorMessage("*** Balance not enough for this transaction ***");
-				}
+				accountId = getAccountIdByUserIdFromAccounts(sendToUserId);
+				receiverAccount = getAccountDetails(accountId);
+				isValid = true;
+				break;
 			} else if (sendToUserId == 0) {
 				break;
 			} else {

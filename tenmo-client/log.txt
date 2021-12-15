@@ -42,3 +42,33 @@
 12/11/2021 11:36:26 AM: logged in as jasper
 12/11/2021 11:38:08 AM: START
 12/11/2021 11:38:14 AM: logged in as jasper
+12/11/2021 13:23:13 PM: 
+START
+12/11/2021 13:23:27 PM: Registration failure
+12/11/2021 13:23:37 PM: 
+START
+12/11/2021 13:23:42 PM: logged in as jasper
+12/11/2021 13:24:57 PM: 1001 requested 101.0 to 1002
+12/11/2021 13:25:17 PM: logged in as john
+12/14/2021 15:40:53 PM: 
+START
+12/14/2021 15:51:02 PM: New user registered. Welcome jimmy
+12/14/2021 15:51:10 PM: logged in as jimmy
+12/14/2021 15:51:15 PM: 1007 viewed current balance.
+12/14/2021 15:51:31 PM: 1007 sent 1000.0 to 1004
+12/14/2021 15:51:54 PM: 3008 was viewed successfully by user id 1007
+12/14/2021 15:53:48 PM: 
+START
+12/14/2021 15:53:55 PM: logged in as jimmy
+12/14/2021 15:55:48 PM: 
+START
+12/14/2021 15:55:56 PM: logged in as jimmy
+12/14/2021 15:55:58 PM: 1007 viewed current balance.
+12/14/2021 15:56:21 PM: 1007 requested 2000.0 to 1004
+12/14/2021 15:56:40 PM: Login failure
+12/14/2021 15:56:49 PM: logged in as jimmy
+12/14/2021 15:57:57 PM: 1007 requested 20.0 to 1001
+12/14/2021 15:58:02 PM: logged in as jasper
+12/14/2021 15:58:29 PM: 3010 request was approved by 1001
+12/14/2021 15:58:34 PM: 1001 viewed current balance.
+12/14/2021 15:59:13 PM: 3010 was viewed successfully by user id 1001
